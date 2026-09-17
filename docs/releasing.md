@@ -28,7 +28,10 @@ flowchart LR
 
 3. `.github/workflows/release.yml` checks the tag against `MARKETING_VERSION`,
    imports the certificate into a throwaway keychain, runs `scripts/release.sh all`
-   and creates a **draft** release with the DMG attached.
+   and creates a **draft** release with the DMG attached. Re-running the
+   workflow for the same tag replaces the DMG on that draft rather than adding
+   another one; once the release is published the run fails instead, because a
+   new DMG would no longer match the cask's `sha256`.
 4. Review the draft, write the notes, publish.
 5. Update the Homebrew cask (below).
 
