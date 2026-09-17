@@ -90,16 +90,8 @@ print_notary_setup() {
     cat <<'EOF'
 No notarization credentials found for "AI usage".
 
-Local (one-time setup): create a keychain profile notarytool can reuse,
-either with an Apple ID app-specific password:
-EOF
-    printf '  xcrun notarytool store-credentials "%s" \\\n' "$profile"
-    cat <<'EOF'
-    --apple-id "<your-apple-id-email>" \
-    --team-id "KGVLNXZJNX" \
-    --password "<app-specific password from appleid.apple.com>"
-
-or with an App Store Connect API key:
+Local (one-time setup): store the App Store Connect API key as a keychain
+profile notarytool can reuse:
 EOF
     printf '  xcrun notarytool store-credentials "%s" \\\n' "$profile"
     cat <<'EOF'
@@ -107,8 +99,7 @@ EOF
     --key-id "<key-id>" \
     --issuer "<issuer-id>"
 
-Either form works locally through the keychain profile above. To skip the
-profile entirely (e.g. in CI), export ASC_KEY_PATH, ASC_KEY_ID and
+To skip the profile entirely (e.g. in CI), export ASC_KEY_PATH, ASC_KEY_ID and
 ASC_ISSUER_ID with the same API key values instead.
 EOF
 }
