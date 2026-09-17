@@ -5,3 +5,4 @@
 - [App Sandbox off](app-sandbox-disabled.md) — ENABLE_APP_SANDBOX = NO, user-approved 2026-07-18; needed for Keychain/`security` + ~/.codex/ reads, don't re-enable without revisiting providers
 - [Codex sandbox vs .git](codex-sandbox-git.md) — `codex exec` handoffs need `-s danger-full-access`; workspace-write mounts `.git` read-only (no opt-out in codex-cli 0.144.6), so branching/committing fails without it
 - [Public repo reset](public-repo-reset.md) — 2026-09-16 fresh public history at v1.0.0; old repo archived as ai-usage-archive + local bundle; secrets re-entered; Homebrew tap; board helper missing
+- [GitHub Project mirror](github-project-mirror.md) — users/sebastian-suarez/projects/1, draft issues, fields Status/Item type/Priority/ID/Parent, item IDs in `ghProjectItem:`

@@ -5,6 +5,7 @@ title: Conform release script to the standard
 status: done
 priority: P2
 notion: "3a4ea0aa-87b0-81ab-a683-cacaf3afb520"
+ghProjectItem: "PVTI_lAHOD4_w5c4BjzHmzg7aZF0"
 github: ""
 parent: "[[M02-signed-release-distribution]]"
 ---

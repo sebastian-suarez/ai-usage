@@ -21,6 +21,7 @@ minus its last ID segment). Each file:
     status: backlog      # backlog | todo | in-progress | blocked | done
     priority: P2         # P0 | P1 | P2
     notion: ""           # Notion page ID, managed by Claude
+    ghProjectItem: ""    # GitHub Project item ID (PVTI_…), managed by Claude
     github: ""           # related issue/PR URL, optional
     ---
 

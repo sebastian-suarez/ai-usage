@@ -5,6 +5,7 @@ title: Homebrew cask
 status: done
 priority: P2
 notion: "3deea0aa-87b0-8192-af76-c6c176678983"
+ghProjectItem: "PVTI_lAHOD4_w5c4BjzHmzg7aZnY"
 github: ""
 parent: "[[M04-public-release]]"
 ---

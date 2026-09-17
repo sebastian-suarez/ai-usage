@@ -5,6 +5,7 @@ title: Clean and install stages
 status: done
 priority: P2
 notion: "3a5ea0aa-87b0-81f5-9506-e8c188af8fca"
+ghProjectItem: "PVTI_lAHOD4_w5c4BjzHmzg7aZLs"
 github: ""
 parent: "[[M02-signed-release-distribution]]"
 ---
