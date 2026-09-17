@@ -53,14 +53,15 @@ Encode a file with `base64 -i <file> | gh secret set <NAME>`.
 ## Running the pipeline locally
 
 The Developer ID Application certificate must be in the login keychain, and
-`notarytool` needs stored credentials, either an app-specific password:
+`notarytool` needs a stored keychain profile holding the same App Store Connect
+API key CI uses, so one notarization credential serves both paths:
 
 ```sh
 xcrun notarytool store-credentials "AI-usage-notary" \
-  --apple-id "<apple-id-email>" --team-id "<team-id>" --password "<app-specific-password>"
+  --key "<path-to-AuthKey.p8>" --key-id "<key-id>" --issuer "<issuer-id>"
 ```
 
-or an App Store Connect API key (`--key`, `--key-id`, `--issuer`). Then:
+Then:
 
 ```sh
 scripts/release.sh all        # full pipeline, ends with dist/AI-usage-<version>.dmg
