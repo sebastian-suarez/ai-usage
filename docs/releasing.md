@@ -57,7 +57,7 @@ The Developer ID Application certificate must be in the login keychain, and
 API key CI uses, so one notarization credential serves both paths:
 
 ```sh
-xcrun notarytool store-credentials "AI-usage-notary" \
+xcrun notarytool store-credentials "notarytool-KGVLNXZJNX" \
   --key "<path-to-AuthKey.p8>" --key-id "<key-id>" --issuer "<issuer-id>"
 ```
 
