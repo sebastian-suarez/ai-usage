@@ -1,0 +1,10 @@
+{
+  "project": "AI Usage",
+  "notionPageUrl": "https://app.notion.com/p/3a2ea0aa87b081acadf0c84b93fa274d",
+  "notionPageId": "3a2ea0aa-87b0-81ac-adf0-c84b93fa274d",
+  "dataSourceId": "a741722a-3dca-4270-8bf6-f599c969cf83",
+  "boardDir": ".project/board",
+  "memoryDir": ".project/memory",
+  "types": ["milestone", "story", "task"],
+  "statuses": ["backlog", "todo", "in-progress", "blocked", "done"]
+}
