@@ -90,6 +90,8 @@ sequenceDiagram
     A-->>U: rows in the panel, % in the menu bar
 ```
 
+More detail: [providers](docs/providers.md) · [releasing](docs/releasing.md) · [troubleshooting](docs/troubleshooting.md).
+
 ## 🛠️ Building from source
 
 1. Open `AI usage.xcodeproj` in Xcode 26 or later.
