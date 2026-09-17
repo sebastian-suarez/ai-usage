@@ -2,7 +2,7 @@
 id: M04
 type: milestone
 title: Public release
-status: in-progress
+status: done
 priority: P1
 notion: "3deea0aa-87b0-81df-bd87-d3203f8d1b58"
 github: ""
