@@ -5,6 +5,7 @@ title: Release workflow on tag
 status: done
 priority: P2
 notion: "3a4ea0aa-87b0-81e6-9ef0-d4f9cc81320d"
+ghProjectItem: "PVTI_lAHOD4_w5c4BjzHmzg7aZCM"
 github: ""
 parent: "[[M02-signed-release-distribution]]"
 ---

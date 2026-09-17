@@ -5,6 +5,7 @@ title: ChatGPT limits provider
 status: done
 priority: P1
 notion: "3a2ea0aa-87b0-81bb-87b0-e23f3dd3f1ea"
+ghProjectItem: "PVTI_lAHOD4_w5c4BjzHmzg7aY6w"
 github: ""
 parent: "[[M01-mvp]]"
 ---

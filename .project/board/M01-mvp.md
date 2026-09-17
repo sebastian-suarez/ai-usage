@@ -5,6 +5,7 @@ title: MVP
 status: done
 priority: P0
 notion: "3a2ea0aa-87b0-8188-b6ea-f5506b3c7caf"
+ghProjectItem: "PVTI_lAHOD4_w5c4BjzHmzg7aY-E"
 github: ""
 ---
 

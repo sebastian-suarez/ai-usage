@@ -5,6 +5,7 @@ title: Lower deployment target to macOS 14
 status: done
 priority: P1
 notion: "3a4ea0aa-87b0-81b9-996d-eebb429ce4e2"
+ghProjectItem: "PVTI_lAHOD4_w5c4BjzHmzg7aZJI"
 github: ""
 parent: "[[M02-signed-release-distribution]]"
 ---

@@ -5,6 +5,7 @@ title: Signed and notarized release script
 status: done
 priority: P1
 notion: "3a4ea0aa-87b0-81b0-bfc5-c5904b65dc04"
+ghProjectItem: "PVTI_lAHOD4_w5c4BjzHmzg7aY_s"
 github: ""
 parent: "[[M02-signed-release-distribution]]"
 ---

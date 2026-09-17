@@ -5,6 +5,7 @@ title: Claude limits provider
 status: done
 priority: P1
 notion: "3a2ea0aa-87b0-8174-a6b7-f8ebd8a897ac"
+ghProjectItem: "PVTI_lAHOD4_w5c4BjzHmzg7aY2Y"
 github: ""
 parent: "[[M01-mvp]]"
 ---

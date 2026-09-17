@@ -5,6 +5,7 @@ title: Start at login
 status: done
 priority: P2
 notion: "3a6ea0aa-87b0-8176-9569-ea0357665599"
+ghProjectItem: "PVTI_lAHOD4_w5c4BjzHmzg7aZS4"
 github: ""
 parent: "[[M03-quality-of-life]]"
 ---

@@ -5,6 +5,7 @@ title: Menu bar usage display
 status: done
 priority: P1
 notion: "3a2ea0aa-87b0-810b-adb9-e32ce36d096d"
+ghProjectItem: "PVTI_lAHOD4_w5c4BjzHmzg7aYy0"
 github: ""
 parent: "[[M01-mvp]]"
 ---

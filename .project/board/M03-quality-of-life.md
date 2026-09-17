@@ -5,6 +5,7 @@ title: Quality of life
 status: in-progress
 priority: P2
 notion: "3a6ea0aa-87b0-8130-974d-ef1926b4e6e0"
+ghProjectItem: "PVTI_lAHOD4_w5c4BjzHmzg7aZcQ"
 github: ""
 ---
 
