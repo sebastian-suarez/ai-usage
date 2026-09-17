@@ -101,11 +101,22 @@ jobs:
           GITHUB_TOKEN: ${{ secrets.GITHUB_TOKEN }}
         run: |
           set -euo pipefail
-          gh release create "$GITHUB_REF_NAME" dist/*.dmg \
-            --title "$GITHUB_REF_NAME" \
-            --generate-notes \
-            --verify-tag \
-            --draft
+          # Re-runs must not pile up drafts: GitHub allows several drafts for
+          # one tag and `gh release create` never checks for an existing one.
+          if IS_DRAFT="$(gh release view "$GITHUB_REF_NAME" --json isDraft --jq .isDraft 2>/dev/null)"; then
+            if [[ "$IS_DRAFT" != "true" ]]; then
+              echo "::error::Release $GITHUB_REF_NAME is already published; replacing its DMG would break the Homebrew cask's sha256. Delete the release or bump the version."
+              exit 1
+            fi
+            echo "Draft release $GITHUB_REF_NAME already exists; replacing its DMG instead of creating another draft."
+            gh release upload "$GITHUB_REF_NAME" dist/*.dmg --clobber
+          else
+            gh release create "$GITHUB_REF_NAME" dist/*.dmg \
+              --title "$GITHUB_REF_NAME" \
+              --generate-notes \
+              --verify-tag \
+              --draft
+          fi
 
       - name: Remove temporary keychain and key material
         if: always()
