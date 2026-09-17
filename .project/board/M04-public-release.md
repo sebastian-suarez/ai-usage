@@ -4,9 +4,9 @@ type: milestone
 title: Public release
 status: done
 priority: P1
-notion: "3deea0aa-87b0-81df-bd87-d3203f8d1b58"
+branch: ""
 ghProjectItem: "PVTI_lAHOD4_w5c4BjzHmzg7aZr0"
-github: ""
+github: "https://github.com/sebastian-suarez/ai-usage/issues/19"
 ---
 
 Turn a private, working project into something a stranger can find, trust and

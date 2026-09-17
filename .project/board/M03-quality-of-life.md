@@ -4,9 +4,9 @@ type: milestone
 title: Quality of life
 status: in-progress
 priority: P2
-notion: "3a6ea0aa-87b0-8130-974d-ef1926b4e6e0"
+branch: ""
 ghProjectItem: "PVTI_lAHOD4_w5c4BjzHmzg7aZcQ"
-github: ""
+github: "https://github.com/sebastian-suarez/ai-usage/issues/15"
 ---
 
 The MVP works and ships as a signed release; what's left is the gap between "a

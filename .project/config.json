@@ -1,8 +1,10 @@
 {
   "project": "AI Usage",
-  "notionPageUrl": "https://app.notion.com/p/3a2ea0aa87b081acadf0c84b93fa274d",
-  "notionPageId": "3a2ea0aa-87b0-81ac-adf0-c84b93fa274d",
-  "dataSourceId": "a741722a-3dca-4270-8bf6-f599c969cf83",
+  "githubProjectUrl": "https://github.com/users/sebastian-suarez/projects/1",
+  "githubProjectNumber": 1,
+  "githubProjectId": "PVT_kwHOD4_w5c4BjzHm",
+  "githubRepo": "sebastian-suarez/ai-usage",
+  "githubProjectOwner": "sebastian-suarez",
   "boardDir": ".project/board",
   "memoryDir": ".project/memory",
   "types": [
@@ -16,8 +18,5 @@
     "in-progress",
     "blocked",
     "done"
-  ],
-  "githubProjectUrl": "https://github.com/users/sebastian-suarez/projects/1",
-  "githubProjectNumber": 1,
-  "githubProjectId": "PVT_kwHOD4_w5c4BjzHm"
+  ]
 }

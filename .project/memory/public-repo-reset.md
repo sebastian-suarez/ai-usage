@@ -16,8 +16,6 @@ purpose so the public changelog is clean.
   chose not to sign.
 - Homebrew tap: `sebastian-suarez/homebrew-tap`, cask `ai-usage`, updated by hand
   per release (sha256 of the release DMG).
-- `~/.claude/bin/board` (the board status/regen helper CLAUDE.md refers to) is
-  missing on this machine; `BOARD.md` was regenerated with a scratch script.
-- GitHub Project "AI Usage" (users/sebastian-suarez/projects/1) created and linked
-  to the repo on 2026-09-17 after the user added the `project` scope to `gh`;
-  node ID and URL are in `.project/config.json`.
+- The global `~/.claude/bin/board` helper was missing on this machine; it was
+  replaced by the repo-local `.project/bin/board` on 2026-09-17 (see
+  [GitHub Project mirror](github-project-mirror.md)).

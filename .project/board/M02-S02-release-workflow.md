@@ -4,10 +4,9 @@ type: story
 title: Release workflow on tag
 status: done
 priority: P2
-notion: "3a4ea0aa-87b0-81e6-9ef0-d4f9cc81320d"
+branch: ""
 ghProjectItem: "PVTI_lAHOD4_w5c4BjzHmzg7aZCM"
-github: ""
-parent: "[[M02-signed-release-distribution]]"
+github: "https://github.com/sebastian-suarez/ai-usage/issues/8"
 ---
 
 A GitHub Actions workflow that runs the M02-S01 script on a macOS runner when a

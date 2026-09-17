@@ -4,10 +4,9 @@ type: story
 title: Lower deployment target to macOS 14
 status: done
 priority: P1
-notion: "3a4ea0aa-87b0-81b9-996d-eebb429ce4e2"
+branch: ""
 ghProjectItem: "PVTI_lAHOD4_w5c4BjzHmzg7aZJI"
-github: ""
-parent: "[[M02-signed-release-distribution]]"
+github: "https://github.com/sebastian-suarez/ai-usage/issues/10"
 ---
 
 AI Usage 1.0.0 shipped with `MACOSX_DEPLOYMENT_TARGET = 26.5`, an Xcode default

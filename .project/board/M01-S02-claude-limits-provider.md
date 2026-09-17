@@ -4,10 +4,9 @@ type: story
 title: Claude limits provider
 status: done
 priority: P1
-notion: "3a2ea0aa-87b0-8174-a6b7-f8ebd8a897ac"
+branch: ""
 ghProjectItem: "PVTI_lAHOD4_w5c4BjzHmzg7aY2Y"
-github: ""
-parent: "[[M01-mvp]]"
+github: "https://github.com/sebastian-suarez/ai-usage/issues/4"
 ---
 
 Read the usage limits of the user's Claude subscription and expose them to the

@@ -4,10 +4,9 @@ type: story
 title: License and end-user README
 status: done
 priority: P1
-notion: "3deea0aa-87b0-814f-a63a-e7c335916dca"
+branch: ""
 ghProjectItem: "PVTI_lAHOD4_w5c4BjzHmzg7aZjo"
-github: ""
-parent: "[[M04-public-release]]"
+github: "https://github.com/sebastian-suarez/ai-usage/issues/17"
 ---
 
 A public repo without a license is unusable, and the current README opens with

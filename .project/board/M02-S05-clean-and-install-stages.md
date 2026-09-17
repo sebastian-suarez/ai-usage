@@ -4,10 +4,9 @@ type: story
 title: Clean and install stages
 status: done
 priority: P2
-notion: "3a5ea0aa-87b0-81f5-9506-e8c188af8fca"
+branch: ""
 ghProjectItem: "PVTI_lAHOD4_w5c4BjzHmzg7aZLs"
-github: ""
-parent: "[[M02-signed-release-distribution]]"
+github: "https://github.com/sebastian-suarez/ai-usage/issues/11"
 ---
 
 The cross-project release standard (`/release-setup`) now requires two stages this

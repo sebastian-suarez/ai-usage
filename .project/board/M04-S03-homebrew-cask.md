@@ -4,10 +4,9 @@ type: story
 title: Homebrew cask
 status: done
 priority: P2
-notion: "3deea0aa-87b0-8192-af76-c6c176678983"
+branch: ""
 ghProjectItem: "PVTI_lAHOD4_w5c4BjzHmzg7aZnY"
-github: ""
-parent: "[[M04-public-release]]"
+github: "https://github.com/sebastian-suarez/ai-usage/issues/18"
 ---
 
 Developers expect `brew install --cask`. Publish a personal tap
