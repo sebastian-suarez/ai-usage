@@ -1,0 +1,114 @@
+name: Release
+
+on:
+  push:
+    tags:
+      - 'v*'
+  workflow_dispatch:
+
+permissions:
+  contents: read
+
+jobs:
+  release:
+    if: github.event_name == 'workflow_dispatch' || github.event.deleted == false
+    runs-on: macos-26
+    timeout-minutes: 150
+    permissions:
+      contents: write
+    env:
+      DEVELOPER_DIR: /Applications/Xcode_26.6.app/Contents/Developer
+    steps:
+      - name: Check out repository
+        uses: actions/checkout@v7
+        with:
+          fetch-depth: 0
+          persist-credentials: false
+
+      - name: Verify tag matches MARKETING_VERSION
+        if: github.event_name == 'push'
+        run: |
+          set -euo pipefail
+          TAG_VERSION="${GITHUB_REF_NAME#v}"
+          VALUES="$(grep -o 'MARKETING_VERSION = [^;]*;' "AI usage.xcodeproj/project.pbxproj" | sort -u || true)"
+          COUNT="$(printf '%s\n' "$VALUES" | grep -c . || true)"
+          if [[ "$COUNT" != "1" ]]; then
+            echo "::error::MARKETING_VERSION is not consistent across the project file: $(printf '%s' "$VALUES" | tr '\n' ' ')"
+            exit 1
+          fi
+          MANIFEST_VERSION="$(printf '%s\n' "$VALUES" | sed -E 's/MARKETING_VERSION = (.*);/\1/')"
+          if [[ "$TAG_VERSION" != "$MANIFEST_VERSION" ]]; then
+            echo "::error::Tag '$GITHUB_REF_NAME' does not match MARKETING_VERSION '$MANIFEST_VERSION' — bump the version and commit before tagging."
+            exit 1
+          fi
+          echo "Tag $GITHUB_REF_NAME matches MARKETING_VERSION $MANIFEST_VERSION"
+
+      - name: Show toolchain versions
+        run: |
+          sw_vers
+          xcodebuild -version
+
+      - name: Dry run (workflow_dispatch only)
+        if: github.event_name == 'workflow_dispatch'
+        run: scripts/release.sh --dry-run all
+
+      - name: Import Developer ID certificate
+        if: github.event_name == 'push'
+        env:
+          DEVELOPER_ID_P12: ${{ secrets.DEVELOPER_ID_P12 }}
+          P12_PASSWORD: ${{ secrets.P12_PASSWORD }}
+        run: |
+          set -euo pipefail
+          KEYCHAIN_PATH="$RUNNER_TEMP/release-signing.keychain-db"
+          KEYCHAIN_PASSWORD="$(uuidgen)"
+          P12_PATH="$RUNNER_TEMP/developer_id.p12"
+
+          echo "$DEVELOPER_ID_P12" | base64 --decode -o "$P12_PATH"
+
+          security create-keychain -p "$KEYCHAIN_PASSWORD" "$KEYCHAIN_PATH"
+          security set-keychain-settings -lut 21600 "$KEYCHAIN_PATH"
+          security unlock-keychain -p "$KEYCHAIN_PASSWORD" "$KEYCHAIN_PATH"
+          security import "$P12_PATH" -k "$KEYCHAIN_PATH" -P "$P12_PASSWORD" \
+            -T /usr/bin/codesign -T /usr/bin/security
+          security set-key-partition-list -S apple-tool:,apple:,codesign: \
+            -s -k "$KEYCHAIN_PASSWORD" "$KEYCHAIN_PATH"
+          security list-keychains -d user -s "$KEYCHAIN_PATH" \
+            $(security list-keychains -d user | tr -d '"')
+          security default-keychain -s "$KEYCHAIN_PATH"
+
+          rm -f "$P12_PATH"
+
+      - name: Write App Store Connect API key
+        if: github.event_name == 'push'
+        env:
+          ASC_KEY_P8: ${{ secrets.ASC_KEY_P8 }}
+        run: |
+          set -euo pipefail
+          echo "$ASC_KEY_P8" | base64 --decode > "$RUNNER_TEMP/asc_key.p8"
+          chmod 600 "$RUNNER_TEMP/asc_key.p8"
+
+      - name: Run scripts/release.sh all
+        if: github.event_name == 'push'
+        env:
+          ASC_KEY_PATH: ${{ runner.temp }}/asc_key.p8
+          ASC_KEY_ID: ${{ secrets.ASC_KEY_ID }}
+          ASC_ISSUER_ID: ${{ secrets.ASC_ISSUER_ID }}
+        run: scripts/release.sh all
+
+      - name: Publish GitHub release (draft)
+        if: github.event_name == 'push'
+        env:
+          GITHUB_TOKEN: ${{ secrets.GITHUB_TOKEN }}
+        run: |
+          set -euo pipefail
+          gh release create "$GITHUB_REF_NAME" dist/*.dmg \
+            --title "$GITHUB_REF_NAME" \
+            --generate-notes \
+            --verify-tag \
+            --draft
+
+      - name: Remove temporary keychain and key material
+        if: always()
+        run: |
+          security delete-keychain "$RUNNER_TEMP/release-signing.keychain-db" 2>/dev/null || true
+          rm -f "$RUNNER_TEMP/asc_key.p8" "$RUNNER_TEMP/developer_id.p12"
