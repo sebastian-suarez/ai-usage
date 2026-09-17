@@ -7,7 +7,7 @@ readonly PROJECT="AI usage.xcodeproj"
 readonly SCHEME="AI usage"
 readonly TEAM_ID="KGVLNXZJNX"
 readonly SIGNING_IDENTITY="Developer ID Application: Sebastian Suarez (KGVLNXZJNX)"
-readonly DEFAULT_NOTARY_PROFILE="AI-usage-notary"
+readonly DEFAULT_NOTARY_PROFILE="notarytool-KGVLNXZJNX"
 readonly PLIST_BUDDY="/usr/libexec/PlistBuddy"
 # Xcode derives this from the project's name; the WorkspacePath check below is
 # what actually authorizes deletion, so this only narrows the candidate list.
