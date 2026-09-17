@@ -129,11 +129,12 @@ the notarization credentials it expects. CI needs five repository secrets:
 
 ## 🤖 How this project is built
 
-The whole app was built with AI coding agents under a small, explicit process
-that lives in the repo: `.project/board/` holds milestones and stories as
-markdown files, `AGENTS.md` sets the rules every agent follows, and each story
-goes plan → implement → review before it is marked done. Read `BOARD.md` for
-what shipped and what's next.
+The whole app was built with AI coding agents under a small, explicit process.
+Planning lives on the [GitHub Project](https://github.com/users/sebastian-suarez/projects/1):
+every milestone and story is an issue, nested with sub-issues, and each one goes
+plan → implement → review before it is closed. `AGENTS.md` sets the rules every
+agent follows, and [`docs/decisions.md`](docs/decisions.md) records the decisions
+that shaped the app.
 
 ## 📄 License
 
