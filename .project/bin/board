@@ -1,0 +1,322 @@
+#!/usr/bin/env python3
+"""Board helper: item files in .project/board/ are the source of truth; the GitHub
+Project (issues + sub-issues + project fields) is the mirror. Needs `gh` with the
+`project` scope.
+
+  board regen                          rebuild BOARD.md from the item files
+  board status <id> <status> [--review] [--note TEXT]
+                                       set frontmatter status, regen, sync the issue,
+                                       leave a comment on the issue
+  board sync [<id> ...]                push file(s) -> issue body/labels/milestone/state
+                                       + project fields (all items when no id given)
+  board new <milestone|story|task> <parent-id|-> <title> [-p P0|P1|P2]
+                                       create the item file, its issue and project item
+  board branch <id> <branch>           record the item branch (file + project field)
+  board show                           print the project's current state
+"""
+import argparse, json, os, re, subprocess, sys
+
+ROOT = os.path.dirname(os.path.dirname(os.path.dirname(os.path.abspath(__file__))))
+CFG = json.load(open(os.path.join(ROOT, ".project", "config.json")))
+BOARD_DIR = os.path.join(ROOT, CFG["boardDir"])
+OWNER = CFG["githubProjectOwner"]
+REPO = CFG["githubRepo"]
+PROJECT_NUMBER = str(CFG["githubProjectNumber"])
+PROJECT_ID = CFG["githubProjectId"]
+STATUS_TO_PROJECT = {"backlog": "Backlog", "todo": "Planned", "in-progress": "Implementing",
+                     "blocked": "Blocked", "done": "Done"}
+FIELD_ORDER = ["id", "type", "title", "status", "priority", "branch", "ghProjectItem", "github"]
+
+
+# ---------- shell helpers ----------
+def sh(*args, check=True, input=None):
+    r = subprocess.run(args, capture_output=True, text=True, input=input)
+    if check and r.returncode:
+        sys.exit(f"error: {' '.join(args[:4])}: {r.stderr.strip()}")
+    return r.stdout.strip()
+
+
+def gh_json(*args):
+    return json.loads(sh("gh", *args, "--format", "json") if args[0] == "project" else sh("gh", *args))
+
+
+def gql(query, **vars):
+    cmd = ["gh", "api", "graphql", "-f", f"query={query}"]
+    for k, v in vars.items():
+        cmd += ["-F", f"{k}={v}"]
+    return json.loads(sh(*cmd))["data"]
+
+
+# ---------- item files ----------
+def item_files():
+    return sorted(f for f in os.listdir(BOARD_DIR) if f.endswith(".md") and f != "BOARD.md")
+
+
+def parse(path):
+    text = open(path).read()
+    m = re.match(r"---\n(.*?)\n---\n?(.*)", text, re.S)
+    meta = {}
+    for line in m.group(1).splitlines():
+        k, _, v = line.partition(":")
+        meta[k.strip()] = v.strip().strip('"')
+    meta["_path"], meta["_body"] = path, m.group(2).strip("\n")
+    return meta
+
+
+def write(meta):
+    keys = [k for k in FIELD_ORDER if k in meta] + [k for k in meta if not k.startswith("_") and k not in FIELD_ORDER]
+    lines = []
+    for k in keys:
+        v = meta[k]
+        lines.append(f'{k}: "{v}"' if k in ("github", "ghProjectItem", "branch") or v == "" else f"{k}: {v}")
+    open(meta["_path"], "w").write("---\n" + "\n".join(lines) + "\n---\n\n" + meta["_body"].rstrip("\n") + "\n")
+
+
+def load_all():
+    items = {}
+    for f in item_files():
+        m = parse(os.path.join(BOARD_DIR, f))
+        items[m["id"]] = m
+    return items
+
+
+def parent_of(item_id):
+    return item_id.rsplit("-", 1)[0] if "-" in item_id else None
+
+
+def top_of(item_id):
+    return item_id.split("-")[0]
+
+
+# ---------- BOARD.md ----------
+def regen(items=None):
+    items = items or load_all()
+    children = {}
+    for i in items.values():
+        children.setdefault(parent_of(i["id"]), []).append(i["id"])
+    out = [f"# Board — {CFG['project']}", ""]
+
+    def emit(item_id, depth):
+        it = items[item_id]
+        kids = sorted(children.get(item_id, []))
+        box = "x" if it["status"] == "done" else " "
+        line = f"{'  ' * depth}- [{box}] {item_id} [{it['status']}] {it['title']}"
+        if it["type"] in ("milestone", "story"):
+            done = sum(1 for k in kids if items[k]["status"] == "done")
+            line += f" ({done}/{len(kids)})"
+        out.append(line)
+        for k in kids:
+            emit(k, depth + 1)
+
+    for root in sorted(children.get(None, [])):
+        emit(root, 0)
+    open(os.path.join(BOARD_DIR, "BOARD.md"), "w").write("\n".join(out) + "\n")
+    print(f"BOARD.md regenerated ({len(items)} items)")
+
+
+# ---------- GitHub mirror ----------
+_fields = None
+
+
+def fields():
+    global _fields
+    if _fields is None:
+        _fields = {f["name"]: f for f in gh_json("project", "field-list", PROJECT_NUMBER, "--owner", OWNER)["fields"]}
+    return _fields
+
+
+def option_id(field, name):
+    for o in fields()[field]["options"]:
+        if o["name"] == name:
+            return o["id"]
+    sys.exit(f"error: option {name!r} not in project field {field!r}")
+
+
+def set_field(item_node, field, value, select=False):
+    kind = ["--single-select-option-id", option_id(field, value)] if select else ["--text", value]
+    r = subprocess.run(["gh", "project", "item-edit", "--project-id", PROJECT_ID, "--id", item_node,
+                        "--field-id", fields()[field]["id"], *kind], capture_output=True, text=True)
+    if r.returncode and "no changes to make" not in r.stderr:
+        sys.exit(f"error: item-edit {field}: {r.stderr.strip()}")
+
+
+_milestones = None
+
+
+def repo_milestone_number(top_id, items):
+    global _milestones
+    if _milestones is None:
+        _milestones = {m["title"].split(" · ")[0]: m for m in
+                       json.loads(sh("gh", "api", f"repos/{REPO}/milestones?state=all&per_page=100"))}
+    if top_id not in _milestones:
+        it = items[top_id]
+        _milestones[top_id] = json.loads(sh("gh", "api", f"repos/{REPO}/milestones", "-f",
+                                            f"title={top_id} · {it['title']}", "-f",
+                                            f"description={it['_body'].split(chr(10))[0][:200]}"))
+    return _milestones[top_id]
+
+
+def issue_number(meta):
+    return int(meta["github"].rstrip("/").rsplit("/", 1)[-1]) if meta.get("github") else None
+
+
+def issue_body(meta, items):
+    parent = parent_of(meta["id"])
+    head = f"> **{meta['id']}** · {meta['type'].capitalize()} · {meta['priority']}"
+    if parent and items.get(parent, {}).get("github"):
+        head += f" · parent #{issue_number(items[parent])}"
+    if meta.get("branch"):
+        head += f" · branch `{meta['branch']}`"
+    rel = os.path.relpath(meta["_path"], ROOT)
+    head += f"\n> Source of truth: `{rel}` — edit the file, then run `.project/bin/board sync {meta['id']}`."
+    return head + "\n\n" + meta["_body"] + "\n"
+
+
+def sync_item(meta, items, project_status=None):
+    """Push one file to its issue + project item. Returns the issue number."""
+    num = issue_number(meta)
+    body = issue_body(meta, items)
+    labels = f"type: {meta['type']}"
+    msobj = repo_milestone_number(top_of(meta["id"]), items)
+    ms = msobj["number"]
+    if num is None:  # create issue + project item
+        url = sh("gh", "issue", "create", "-R", REPO, "--title", f"{meta['id']} · {meta['title']}",
+                 "--body", body, "--label", labels)
+        meta["github"] = url
+        num = issue_number(meta)
+        item = gh_json("project", "item-add", PROJECT_NUMBER, "--owner", OWNER, "--url", url)
+        meta["ghProjectItem"] = item["id"]
+        parent = parent_of(meta["id"])
+        if parent and items.get(parent, {}).get("github"):
+            pid = json.loads(sh("gh", "issue", "view", "-R", REPO, str(issue_number(items[parent])), "--json", "id"))["id"]
+            cid = json.loads(sh("gh", "issue", "view", "-R", REPO, str(num), "--json", "id"))["id"]
+            gql("mutation($p:ID!,$c:ID!){addSubIssue(input:{issueId:$p,subIssueId:$c}){issue{id}}}", p=pid, c=cid)
+        write(meta)
+    else:
+        sh("gh", "issue", "edit", "-R", REPO, str(num), "--title", f"{meta['id']} · {meta['title']}",
+           "--body", body, "--add-label", labels)
+    sh("gh", "api", "-X", "PATCH", f"repos/{REPO}/issues/{num}", "-F", f"milestone={ms}")  # gh issue edit can't match '·' titles
+    state = json.loads(sh("gh", "issue", "view", "-R", REPO, str(num), "--json", "state"))["state"]
+    if meta["status"] == "done" and state != "CLOSED":
+        sh("gh", "issue", "close", "-R", REPO, str(num), "--reason", "completed")
+    elif meta["status"] != "done" and state == "CLOSED":
+        sh("gh", "issue", "reopen", "-R", REPO, str(num))
+    if meta["type"] == "milestone":
+        sh("gh", "api", "-X", "PATCH", f"repos/{REPO}/milestones/{ms}", "-f",
+           f"state={'closed' if meta['status'] == 'done' else 'open'}")
+    node = meta["ghProjectItem"]
+    set_field(node, "Status", project_status or STATUS_TO_PROJECT[meta["status"]], select=True)
+    set_field(node, "Item type", meta["type"].capitalize(), select=True)
+    set_field(node, "Priority", meta["priority"], select=True)
+    set_field(node, "Branch", meta.get("branch", ""))
+    return num
+
+
+# ---------- commands ----------
+def cmd_regen(a):
+    regen()
+
+
+def cmd_sync(a):
+    items = load_all()
+    ids = a.ids or sorted(items, key=lambda i: (i.count("-"), i))  # parents before children
+    for i in ids:
+        if i not in items:
+            sys.exit(f"error: unknown item {i}")
+        num = sync_item(items[i], items)
+        print(f"synced {i} -> #{num}")
+    regen(items)
+
+
+def cmd_status(a):
+    if a.status not in STATUS_TO_PROJECT:
+        sys.exit(f"error: status must be one of {', '.join(STATUS_TO_PROJECT)}")
+    items = load_all()
+    meta = items.get(a.id) or sys.exit(f"error: unknown item {a.id}")
+    old = meta["status"]
+    meta["status"] = a.status
+    write(meta)
+    regen(items)
+    label = "In review" if a.review else STATUS_TO_PROJECT[a.status]
+    num = sync_item(meta, items, project_status=label)
+    note = f"**Status:** `{old}` → `{a.status}` ({label})"
+    if a.note:
+        note += f"\n\n{a.note}"
+    sh("gh", "issue", "comment", "-R", REPO, str(num), "--body", note)
+    print(f"{a.id}: {old} -> {a.status} ({label}); issue #{num} updated")
+
+
+def cmd_branch(a):
+    items = load_all()
+    meta = items.get(a.id) or sys.exit(f"error: unknown item {a.id}")
+    meta["branch"] = a.branch
+    write(meta)
+    sync_item(meta, items)
+    print(f"{a.id}: branch = {a.branch}")
+
+
+def cmd_new(a):
+    items = load_all()
+    parent = None if a.parent == "-" else a.parent
+    if a.type == "milestone":
+        if parent:
+            sys.exit("error: milestones have no parent")
+        n = max([int(i[1:]) for i in items if "-" not in i] + [0]) + 1
+        new_id = f"M{n:02d}"
+    else:
+        if not parent or parent not in items:
+            sys.exit("error: story/task needs an existing parent id")
+        want = {"story": "milestone", "task": "story"}[a.type]
+        if items[parent]["type"] != want:
+            sys.exit(f"error: a {a.type} must hang off a {want}")
+        prefix = "S" if a.type == "story" else "T"
+        sibs = [int(i.rsplit("-", 1)[1][1:]) for i in items if parent_of(i) == parent]
+        new_id = f"{parent}-{prefix}{max(sibs + [0]) + 1:02d}"
+    slug = re.sub(r"[^a-z0-9]+", "-", a.title.lower()).strip("-")[:50]
+    path = os.path.join(BOARD_DIR, f"{new_id}-{slug}.md")
+    body = a.title + ".\n" + ("" if a.type == "milestone" else "\n- [ ] \n")
+    meta = {"id": new_id, "type": a.type, "title": a.title, "status": "backlog", "priority": a.priority,
+            "branch": "", "ghProjectItem": "", "github": "", "_path": path, "_body": body}
+    write(meta)
+    items[new_id] = meta
+    num = sync_item(meta, items)
+    regen(items)
+    print(f"created {new_id} ({os.path.relpath(path, ROOT)}) -> #{num}")
+
+
+def cmd_show(a):
+    data = gh_json("project", "item-list", PROJECT_NUMBER, "--owner", OWNER, "--limit", "200")
+    states = {i["number"]: i["state"] for i in json.loads(sh("gh", "issue", "list", "-R", REPO, "--state", "all",
+                                                             "--limit", "500", "--json", "number,state"))}
+    rows = []
+    for it in data["items"]:
+        c = it.get("content", {})
+        rows.append((it.get("title", ""), it.get("status", ""), it.get("item type", ""), it.get("priority", ""),
+                     it.get("branch", "") or "", f"#{c.get('number', '')}", states.get(c.get("number"), "")))
+    rows.sort()
+    w = [max(len(r[i]) for r in rows + [("Item", "Status", "Type", "Pri", "Branch", "Issue", "State")]) for i in range(7)]
+    fmt = "  ".join(f"{{:<{x}}}" for x in w)
+    print(fmt.format("Item", "Status", "Type", "Pri", "Branch", "Issue", "State"))
+    for r in rows:
+        print(fmt.format(*r))
+
+
+def main():
+    p = argparse.ArgumentParser(description=__doc__, formatter_class=argparse.RawDescriptionHelpFormatter)
+    s = p.add_subparsers(dest="cmd", required=True)
+    s.add_parser("regen").set_defaults(fn=cmd_regen)
+    x = s.add_parser("sync"); x.add_argument("ids", nargs="*"); x.set_defaults(fn=cmd_sync)
+    x = s.add_parser("status"); x.add_argument("id"); x.add_argument("status")
+    x.add_argument("--review", action="store_true", help="show 'In review' on the project (status stays in-progress)")
+    x.add_argument("--note", help="extra text for the issue comment"); x.set_defaults(fn=cmd_status)
+    x = s.add_parser("branch"); x.add_argument("id"); x.add_argument("branch"); x.set_defaults(fn=cmd_branch)
+    x = s.add_parser("new"); x.add_argument("type", choices=["milestone", "story", "task"])
+    x.add_argument("parent"); x.add_argument("title"); x.add_argument("-p", "--priority", default="P2", choices=["P0", "P1", "P2"])
+    x.set_defaults(fn=cmd_new)
+    s.add_parser("show").set_defaults(fn=cmd_show)
+    a = p.parse_args()
+    a.fn(a)
+
+
+if __name__ == "__main__":
+    main()

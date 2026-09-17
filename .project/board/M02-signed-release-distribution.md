@@ -4,9 +4,9 @@ type: milestone
 title: Signed release distribution
 status: done
 priority: P1
-notion: "3a4ea0aa-87b0-8105-9d64-d4ead353f7ec"
+branch: ""
 ghProjectItem: "PVTI_lAHOD4_w5c4BjzHmzg7aZPU"
-github: ""
+github: "https://github.com/sebastian-suarez/ai-usage/issues/12"
 ---
 
 Ship AI Usage as a real Mac app other people can install: a Developer ID-signed,

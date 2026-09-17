@@ -4,10 +4,9 @@ type: story
 title: Conform release script to the standard
 status: done
 priority: P2
-notion: "3a4ea0aa-87b0-81ab-a683-cacaf3afb520"
+branch: ""
 ghProjectItem: "PVTI_lAHOD4_w5c4BjzHmzg7aZF0"
-github: ""
-parent: "[[M02-signed-release-distribution]]"
+github: "https://github.com/sebastian-suarez/ai-usage/issues/9"
 ---
 
 `scripts/release.sh` predates the cross-project release standard (`/release-setup`)

@@ -4,10 +4,9 @@ type: story
 title: Menu bar usage display
 status: done
 priority: P1
-notion: "3a2ea0aa-87b0-810b-adb9-e32ce36d096d"
+branch: ""
 ghProjectItem: "PVTI_lAHOD4_w5c4BjzHmzg7aYy0"
-github: ""
-parent: "[[M01-mvp]]"
+github: "https://github.com/sebastian-suarez/ai-usage/issues/3"
 ---
 
 Turn the app into a menu bar-only app. The menu bar item always shows the

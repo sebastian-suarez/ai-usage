@@ -4,9 +4,9 @@ type: milestone
 title: MVP
 status: done
 priority: P0
-notion: "3a2ea0aa-87b0-8188-b6ea-f5506b3c7caf"
+branch: ""
 ghProjectItem: "PVTI_lAHOD4_w5c4BjzHmzg7aY-E"
-github: ""
+github: "https://github.com/sebastian-suarez/ai-usage/issues/6"
 ---
 
 First usable version of AI Usage: a macOS menu bar app that keeps an eye on the

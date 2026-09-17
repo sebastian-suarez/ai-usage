@@ -7,8 +7,11 @@ CLAUDE.md.
 ## Project board — files are the source of truth
 
 Milestones, Stories and Tasks live as markdown files in `.project/board/`. Those
-files are the source of truth; the Notion board is a human-facing mirror maintained
-by Claude. Config and IDs: `.project/config.json`.
+files are the source of truth; the GitHub Project
+(https://github.com/users/sebastian-suarez/projects/1) mirrors them — one issue per
+item, native sub-issues for hierarchy, repo Milestones per board milestone — and is
+maintained by Claude through `.project/bin/board`. Config and IDs:
+`.project/config.json`.
 
 Item files sit flat in `.project/board/`, hierarchy encoded in the filename —
 `M01-mvp.md`, `M01-S01-user-auth.md`, `M01-S01-T01-login-form.md` (parent = filename
@@ -20,12 +23,16 @@ minus its last ID segment). Each file:
     title: Login form
     status: backlog      # backlog | todo | in-progress | blocked | done
     priority: P2         # P0 | P1 | P2
-    notion: ""           # Notion page ID, managed by Claude
+    branch: ""           # item branch (<type>/<slug>), set at plan time
     ghProjectItem: ""    # GitHub Project item ID (PVTI_…), managed by Claude
-    github: ""           # related issue/PR URL, optional
+    github: ""           # the item's GitHub issue URL, managed by Claude
     ---
 
     One-paragraph description. Stories/Tasks: acceptance criteria as a `- [ ]` checklist.
+
+Everything after the frontmatter is mirrored verbatim into the issue body, so keep
+it readable on its own: description, acceptance checklist, then `## Plan` and
+`## Review` sections as the workflow adds them.
 
 `BOARD.md` is a regenerated index — one checkbox line per item, indented to show
 hierarchy; checked = `done`. Milestone and Story lines carry a `(done/total)`
@@ -63,11 +70,14 @@ reviewed and closed.
    acceptance criteria checklist. If a `## Review` section exists, address every
    numbered finding in it.
 2. Set the item's `status:` frontmatter to `in-progress` when you start.
-3. Work only on the item's branch. Commit in small conventional commits, referencing
-   the item in the body (`Board: <id>`).
+3. Work only on the item's branch (the `branch:` field). Commit in small
+   conventional commits, referencing the item in the body (`Board: <id>`). When you
+   open the PR, put `Closes #<issue>` in its body — the issue number is the last
+   segment of the item's `github:` URL — so GitHub links the PR to the project card
+   and closes the issue on merge.
 4. `.project/memory/` is useful context (past decisions, gotchas) — read it freely,
-   but never write to it. Do not touch Notion, `BOARD.md`, or other items' files —
-   the review phase reconciles those.
+   but never write to it. Do not touch GitHub issues/the project, `BOARD.md`, or
+   other items' files — the review phase reconciles those.
 
 ## Git conventions
 

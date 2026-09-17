@@ -4,10 +4,9 @@ type: story
 title: ChatGPT limits provider
 status: done
 priority: P1
-notion: "3a2ea0aa-87b0-81bb-87b0-e23f3dd3f1ea"
+branch: ""
 ghProjectItem: "PVTI_lAHOD4_w5c4BjzHmzg7aY6w"
-github: ""
-parent: "[[M01-mvp]]"
+github: "https://github.com/sebastian-suarez/ai-usage/issues/5"
 ---
 
 Read the usage limits of the user's ChatGPT subscription and expose them to the

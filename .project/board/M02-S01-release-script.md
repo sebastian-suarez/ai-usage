@@ -4,10 +4,9 @@ type: story
 title: Signed and notarized release script
 status: done
 priority: P1
-notion: "3a4ea0aa-87b0-81b0-bfc5-c5904b65dc04"
+branch: ""
 ghProjectItem: "PVTI_lAHOD4_w5c4BjzHmzg7aY_s"
-github: ""
-parent: "[[M02-signed-release-distribution]]"
+github: "https://github.com/sebastian-suarez/ai-usage/issues/7"
 ---
 
 A single script that turns the current checkout into a distributable app:

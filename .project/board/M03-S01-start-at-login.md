@@ -4,10 +4,9 @@ type: story
 title: Start at login
 status: done
 priority: P2
-notion: "3a6ea0aa-87b0-8176-9569-ea0357665599"
+branch: ""
 ghProjectItem: "PVTI_lAHOD4_w5c4BjzHmzg7aZS4"
-github: ""
-parent: "[[M03-quality-of-life]]"
+github: "https://github.com/sebastian-suarez/ai-usage/issues/13"
 ---
 
 The app only runs when launched by hand: after a reboot or logout the menu bar

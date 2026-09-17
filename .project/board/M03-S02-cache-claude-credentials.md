@@ -4,10 +4,9 @@ type: story
 title: Cache Claude credentials to stop keychain prompt spam
 status: backlog
 priority: P1
-notion: "3adea0aa-87b0-8178-99c7-d91206922386"
+branch: ""
 ghProjectItem: "PVTI_lAHOD4_w5c4BjzHmzg7aZXI"
-github: ""
-parent: "[[M03-quality-of-life]]"
+github: "https://github.com/sebastian-suarez/ai-usage/issues/14"
 ---
 
 Every refresh (auto-refresh every 5 minutes, plus manual Refresh) spawns
